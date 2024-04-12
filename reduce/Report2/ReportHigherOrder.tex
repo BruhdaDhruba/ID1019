@@ -1,0 +1,96 @@
+\documentclass[a4paper,11pt]{article}
+
+\usepackage[utf8]{inputenc}
+\usepackage{subcaption}
+\usepackage{booktabs}
+\usepackage{caption}
+\usepackage{amsmath}
+\usepackage{tkz-euclide}
+\usepackage{hyperref}
+
+\begin{document}
+
+\title{
+    \textbf{Recursive Functions}
+}
+\author{Dhruba Das}
+\date{Spring Term 2024}
+
+\maketitle
+
+\section*{Introduction}
+This assignment is a continuation of the previous assignment, Operation-on-Lists. In this assignment, we have two problems: Implementing higher order functions $map$, $reduce$ and $filter$, AND re-implementing the ten functions which we implemented in the previous assignment, but using our higher order functions.
+
+\section*{Higher order functions}
+In this assignment, we encounter the \textbf{three} different patterns once again, which we use to write our $map$, $reduce$ and filter functions. To re-iterate, the first pattern defines functions which take a list and returns a new list containing values which were taken from the original list and/or modified. This is done so by the function $map$ function, which takes a list, performs a function on that list, and returns a new list containing the resulting values:
+\begin{verbatim}
+def map([], _func) do [] end
+  def map([h|t], func) do
+    [func.(h)| map(t, func)]
+  end
+\end{verbatim}
+
+The second pattern defines functions which take a list, and an integer which is used to modify the values in the original list, and return a new list containing the modified values. This is done by the $filter$ function. The $filter$ function takes a list, and a function which returns true or false; then, the elements in the list which match the given criteria of the function, are returned in a new list: 
+\begin{verbatim}
+def filter([], _func) do [] end
+  def filter([h|t], func) do
+    case func.(h) do
+      true -> [h|filter(t, func)]
+      false -> filter(t, func)
+    end
+  end
+\end{verbatim}
+
+The third pattern defines a function which takes a list and returns an accumulated value obtained from all the values in the list. This is done by the $reduce$ function, which takes a list, an accumulator $acc$, and a function, and then returns an accumulated value obtained by performing the given function on all the values in the list:
+\begin{verbatim}
+def reducel([], acc, _func) do acc end
+  def reducel([h|t], acc, func) do
+    reducel(t, func.(h, acc), func)
+  end
+\end{verbatim} 
+The code shown above is $reducel$, which is the tail recursive variant of the $reduce$ function.
+
+
+\section*{Re-implementation}
+I will not be going through all 10 functions, but shown below are example-functions for each pattern:
+\begin{verbatim}
+def inc(list, val) do
+    map(list, fn(x) -> x + val end)
+  end
+  ...
+  def even(list) do
+    filter(list, fn(x) -> rem(x, 2) == 0 end)
+  end
+  ...
+  def lengt(list) do
+    reducel(list, 0, fn(_, b) -> 1 + b end)
+  end
+\end{verbatim} 
+
+
+\section*{Pipe operator}
+The instructions as to how to use the pipe operator are given to us, so I'll not be showing the original $square$ function; instead shown below is the function $squarepipe$, which is the same function but is defined using pipe operators instead. The $squarepipe$ function takes a list of integers and returns the sum of the square of all values less than $n$.
+\begin{verbatim}
+def square_pipe(list, n) do
+    list |>
+      filter(fn(x) -> x < n end) |>
+      map(fn(x) -> x * x end) |>
+      reducel(0, fn(x, y) -> x + y end)
+  end
+\end{verbatim} 
+
+\section*{An example}
+Shown below is an a working example of the $squarepipe$ function:
+\begin{verbatim}
+[High]
+iex(9)> list
+[1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
+...
+iex(21)> High.square_pipe(list, 3)
+5
+\end{verbatim} 
+
+
+
+
+\end{document}
